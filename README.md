@@ -9,11 +9,6 @@ types, and also lets you specify regular expressions in doing the search. The re
       3. Build and Run FindTextInFiles<br/>
       4. A dialog box will appear that allows you to specify what you want to find:<br/>
       <center><img src="http://www.idealautomate.com/images/FindTextInFilesDialog.PNG" border="0"  alt="Find Text In Files" /></center><br/>
-           
-                        5. Once the search completes, the search results will be posted in Notepad++. <br/><br/>          
-           <center><img src="http://www.idealautomate.com/images/NotepadPlusPlus.PNG" border="2" alt="Notepad" /></center><br/>
-           I can cut-n-paste this sql from notepad into SSMS to run it in realtime so that I can identify where any problems might be.
-
-          
-     
+                         5. Once the search completes, the search results will be posted in Notepad++. <br/><br/>          
+           <center><img src="http://www.idealautomate.com/images/NotepadPlusPlus.PNG" border="2" alt="Notepad" /></center><br/>          
      
