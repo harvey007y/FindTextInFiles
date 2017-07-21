@@ -269,22 +269,19 @@ namespace FindTextInFiles {
             myActions.WriteValueToAppDirectoryFile(settingsDirectory, fileName, strFolder);
 
             if (strButtonPressed == "btnSelectFolder") {
-                var dialog = new System.Windows.Forms.FolderBrowserDialog();
+                fileName = "LastSearchFolder.txt";               
+                 var dialog = new System.Windows.Forms.FolderBrowserDialog();
+                dialog.SelectedPath = myActions.ReadValueFromAppDataFile(settingsDirectory, fileName);
                 string str = "LastSearchFolder";
 
-                if (DoesSettingExist(str)) {
-                    dialog.SelectedPath = FindTextInFiles.Properties.Settings.Default.LastSearchFolder;
-                } else {
-                    dialog.SelectedPath = "";
-                }
+               
                 System.Windows.Forms.DialogResult result = dialog.ShowDialog();
                 if (result == System.Windows.Forms.DialogResult.OK && Directory.Exists(dialog.SelectedPath)) {
                     myListControlEntity.Find(x => x.ID == "cbxFolder").SelectedValue = dialog.SelectedPath;
                     myListControlEntity.Find(x => x.ID == "cbxFolder").SelectedKey = dialog.SelectedPath;
-                    myListControlEntity.Find(x => x.ID == "cbxFolder").Text = dialog.SelectedPath;
-                    FindTextInFiles.Properties.Settings.Default.LastSearchFolder = dialog.SelectedPath;
-                    FindTextInFiles.Properties.Settings.Default.Save();
-                    //     btnSearch.IsEnabled = true;
+                    myListControlEntity.Find(x => x.ID == "cbxFolder").Text = dialog.SelectedPath;                   
+                    fileName = "LastSearchFolder.txt";
+                    myActions.WriteValueToAppDirectoryFile(settingsDirectory, fileName, dialog.SelectedPath);                   
                     strFolder = dialog.SelectedPath;
                     fileName = "cbxFolderSelectedValue.txt";
                     myActions.WriteValueToAppDirectoryFile(settingsDirectory, fileName, strFolder);

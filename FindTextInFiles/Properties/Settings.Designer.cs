@@ -22,17 +22,5 @@ namespace FindTextInFiles.Properties {
                 return defaultInstance;
             }
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string LastSearchFolder {
-            get {
-                return ((string)(this["LastSearchFolder"]));
-            }
-            set {
-                this["LastSearchFolder"] = value;
-            }
-        }
     }
 }
