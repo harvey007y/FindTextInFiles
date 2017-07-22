@@ -12,7 +12,8 @@ using System.Threading;
 using System.Windows;
 using System.IO;
 using System.Linq;
-
+using WindowsInput;
+using WindowsInput.Native;
 
 
 
@@ -368,6 +369,381 @@ namespace IdealAutomate.Core {
             }
             return settingsDirectory;
         }
+
+        /// <summary>
+        /// <para>TypeText - The visual basic SendKeys function is used to mimic </para>
+        /// <para>pressing special keys (like the enter or alt keys). This means you </para>
+        /// <para>need to use the Shortcut Keys help file in the IdealAutomate application </para>
+        /// <para>or google in order to learn what characters can be used to represent</para>
+        /// <para>special keys. For example, the ^ character is used to represent the </para>
+        /// <para>control key and here is how you indicate the enter key is pressed: </para>
+        /// <para>{ENTER}. You will also need to learn how to "escape" special characters</para>
+        /// <para>(like the bracket character). If you are trying to type a lot of special</para>
+        /// <para>characters, it may be easier to create a string primitive with the </para>
+        /// <para>text you want to type and use the PutEntityInClipboard verb to copy </para>
+        /// <para>the string into the clipboard. After the string is in the clipboard,</para>
+        /// <para>you can use the TypeText verb with control v to paste what is in the</para>
+        /// clipboard to where you want it.
+        /// </summary>
+        /// <param name="myEntity">string representing the keys you want to press</param>
+        /// <param name="intSleep">integer representing the number of milliseconds to wait before sending the text</param>
+        public void TypeText(string myEntity, int intSleep) {
+            InputSimulator InputSimulator = new InputSimulator();
+            //if (myEntity == "{LWin}") {
+            //  KeyboardSend.KeyDown(System.Windows.Forms.Keys.ControlKey);
+            //  KeyboardSend.KeyDown(System.Windows.Forms.Keys.Alt);
+            //  KeyboardSend.KeyDown(System.Windows.Forms.Keys.L);
+            //  KeyboardSend.KeyUp(System.Windows.Forms.Keys.L);
+            //  KeyboardSend.KeyUp(System.Windows.Forms.Keys.Alt);
+            //  KeyboardSend.KeyUp(System.Windows.Forms.Keys.ControlKey);
+            //}
+            if (intSleep > 0) {
+                System.Threading.Thread.Sleep(intSleep);
+            }
+            //          public void SimulateSomeModifiedKeystrokes()
+            //{
+            //  // CTRL-C (effectively a copy command in many situations)
+            //  InputSimulator.SimulateModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.VK_C);
+
+            //  // You can simulate chords with multiple modifiers
+            //  // For example CTRL-K-C whic is simulated as
+            //  // CTRL-down, K, C, CTRL-up
+            //  InputSimulator.SimulateModifiedKeyStroke(VirtualKeyCode.CONTROL, new [] {VirtualKeyCode.VK_K, VirtualKeyCode.VK_C});
+
+            //  // You can simulate complex chords with multiple modifiers and key presses
+            //  // For example CTRL-ALT-SHIFT-ESC-K which is simulated as
+            //  // CTRL-down, ALT-down, SHIFT-down, press ESC, press K, SHIFT-up, ALT-up, CTRL-up
+            //  InputSimulator.SimulateModifiedKeyStroke(
+            //    new[] { VirtualKeyCode.CONTROL, VirtualKeyCode.MENU, VirtualKeyCode.SHIFT },
+            //    new[] { VirtualKeyCode.ESCAPE, VirtualKeyCode.VK_K });
+            //}
+            if (myEntity == "%(f)e") {
+                InputSimulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.VK_F); //System.Windows.Forms.Keys.Alt);
+                InputSimulator.Keyboard.KeyPress(VirtualKeyCode.VK_E);
+                return;
+            }
+            if (myEntity == "%(d)") {
+                InputSimulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.VK_D); //System.Windows.Forms.Keys.Alt);        
+                return;
+            }
+            if (myEntity == "%(f)") {
+                InputSimulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.VK_F); //System.Windows.Forms.Keys.Alt);        
+                return;
+            }
+            if (myEntity == "%(\" \")n") {
+                InputSimulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.SPACE); //System.Windows.Forms.Keys.Alt);
+                InputSimulator.Keyboard.KeyPress(VirtualKeyCode.VK_N);
+                return;
+            }
+            if (myEntity == "%(\" \")") {
+                InputSimulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.SPACE); //System.Windows.Forms.Keys.Alt);              
+                return;
+            }
+            if (myEntity == "%(\" \")x") {
+                InputSimulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.SPACE); //System.Windows.Forms.Keys.Alt);
+                InputSimulator.Keyboard.KeyPress(VirtualKeyCode.VK_X);
+                return;
+            }
+            if (myEntity == "%({DOWN})") {
+                InputSimulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.DOWN); //System.Windows.Forms.Keys.Alt);
+
+                return;
+            }
+            if (myEntity == "%({F8})") {
+                InputSimulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.F8); //System.Windows.Forms.Keys.Alt);
+                return;
+            }
+            if (myEntity == "{NUMPADADD}") {
+                InputSimulator.Keyboard.KeyPress(VirtualKeyCode.ADD);
+                return;
+            }
+            if (myEntity == "{NUMPADMULT}") {
+                InputSimulator.Keyboard.KeyPress(VirtualKeyCode.MULTIPLY);
+                return;
+            }
+            if (myEntity == "{ENTER}") {
+                InputSimulator.Keyboard.KeyPress(VirtualKeyCode.RETURN);
+                return;
+            }
+            if (myEntity == "^(n)") {
+                InputSimulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.VK_N);
+                return;
+            }
+            if (myEntity == "^(v)") {
+                InputSimulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.VK_V);
+                return;
+            }
+            if (myEntity == "^(c)") {
+                try {
+
+                    Thread thread = new Thread(new ThreadStart(() => {
+                        Clipboard.Clear();
+                        // Clipboard.SetText(myEntity);            
+                        // or call logic here
+
+
+
+                    }));
+
+                    thread.SetApartmentState(ApartmentState.STA);
+
+                    thread.Start();
+                    thread.Join();
+                } catch (Exception ex) {
+                    MessageBox.Show("Here is an exception thrown in TypeText method in IdealAutomateCore for myEntity " + myEntity + ": " + ex.Message);
+                }
+                InputSimulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.VK_C);
+                return;
+            }
+            if (myEntity == "{F5}") {
+                InputSimulator.Keyboard.KeyPress(VirtualKeyCode.F5);
+                return;
+            }
+            if (myEntity == "{F6}") {
+                InputSimulator.Keyboard.KeyPress(VirtualKeyCode.F6);
+                return;
+            }
+            if (myEntity == "{DOWN}") {
+                InputSimulator.Keyboard.KeyPress(VirtualKeyCode.DOWN);
+                return;
+            }
+            if (myEntity == "{UP}") {
+                InputSimulator.Keyboard.KeyPress(VirtualKeyCode.UP);
+                return;
+            }
+            if (myEntity == "^({END})") {
+                InputSimulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.END);
+                return;
+            }
+            if (myEntity == "^({HOME})") {
+                InputSimulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.HOME);
+                return;
+            }
+            if (myEntity == "+({F10})") {
+                InputSimulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.SHIFT, VirtualKeyCode.F10);
+                return;
+            }
+
+
+                System.Windows.Forms.SendKeys.SendWait(myEntity);
+   
+        }
+        /// <summary>
+        /// PutClipboardInEntity returns a string that contains the text in the clipboard.
+        /// </summary>
+        /// <returns>string that contains the text in the clipboard</returns>
+       
+        public string PutClipboardInEntity() {
+            if (fbDebugMode) {
+                Console.WriteLine(oProcess.ProcessName + "==> " + "PutClipboardInEntity: ");
+               
+            }
+            int intTryAgainCtr = 0;
+            TryAgain:
+            string myEntity = "";
+            try {
+                //Thread thread = new Thread(new ThreadStart(() => {
+                try {
+
+                    for (int i = 0; i < 45; i++) {
+                        if (Clipboard.GetData(DataFormats.Text) == null) {
+                            Sleep(100);
+                        } else {
+                            break;
+                        }
+                        if (i == 10 || i == 20 || i == 30 || i == 40) {
+                            TypeText("^(c)", 500);
+                            Sleep(1001);
+                            // System.Diagnostics.Debugger.Break();
+                        }
+                    }
+
+                    myEntity = Clipboard.GetData(DataFormats.Text).ToString();
+                    if (myEntity.Contains("Failed to copy selection to the clipboard")) {
+                        TypeText("^(c)", 500);
+                        Sleep(1002);
+                        intTryAgainCtr++;
+                        if (intTryAgainCtr < 10) {
+                            goto TryAgain;
+                        }
+
+                    }
+                    // myEntity = Clipboard.GetText(System.Windows.TextDataFormat.Html);
+                } catch (Exception e) {
+                    Console.WriteLine("Exception occurred in PutClipboardInEntity!!!! " + e.Message);
+                    myEntity = "";
+                }
+
+                // or call logic here
+
+
+
+                //}));
+
+                //thread.SetApartmentState(ApartmentState.STA);
+
+                //thread.Start();
+                //thread.Join();
+            } catch (Exception ex) {
+                try {
+                    TypeText("^(c)", 500);
+                    //Thread thread = new Thread(new ThreadStart(() => {
+                    try {
+
+                        for (int i = 0; i < 45; i++) {
+                            if (Clipboard.GetData(DataFormats.Text) == null) {
+                                Sleep(100);
+                            } else {
+                                break;
+                            }
+                            if (i == 10 || i == 20 || i == 30 || i == 40) {
+                                TypeText("^(c)", 500);
+                                Sleep(1003);
+                            }
+                        }
+
+                        myEntity = Clipboard.GetData(DataFormats.Text).ToString();
+                        // myEntity = Clipboard.GetText(System.Windows.TextDataFormat.Html);
+                    } catch (Exception e) {
+                        Console.WriteLine("Exception occurred in PutClipboardInEntity!!!! " + e.Message);
+                        myEntity = "";
+                    }
+
+                    // or call logic here
+
+
+
+                    //}));
+
+                    //thread.SetApartmentState(ApartmentState.STA);
+
+                    //thread.Start();
+                    //thread.Join();
+                } catch (Exception ex1) {
+                    MessageBox.Show(ex1.Message);
+                }
+            }
+
+            Console.Write("myEntity=" + myEntity);
+            
+
+            return myEntity;
+        }
+        /// <summary>
+        /// Sleep receives an integer that indicates the number of milliseconds that you want the program to wait.
+        /// </summary>
+        /// <param name="intSleep">integer that indicates the number of milliseconds that you want the program to wait.</param>
+        public void Sleep(int intSleep) {
+            if (fbDebugMode) {
+                Console.WriteLine(oProcess.ProcessName + "==> " + "Sleep:  intSleep=" + intSleep.ToString());
+               
+            }
+            System.Threading.Thread.Sleep(intSleep);
+        }
+        public void FindDelimitedText(FindDelimitedTextParms myParms) {
+            // set defaults of not found and empty string
+            myParms.intDelimFound = -1;
+            myParms.strDelimitedTextFound = "";
+            int intStartingLine = myParms.intLineCtr;
+
+            ExamineALine:
+            // if we reach the end of the lines array,
+            // we could not find delimited text and we are done
+            if (myParms.intLineCtr > myParms.lines.Count()) {
+                myParms.strResultTypeFound = "Not Found";
+                return;
+            }
+            // move the current line that we want to examine
+            // to myLine
+
+            string myLine = myParms.lines[myParms.intLineCtr];
+            if (myParms.intLineCtr == intStartingLine) {
+                myLine = myLine.Substring(myParms.intStartingCol);
+            }
+
+            // we are going to loop the the begin and end 
+            // delim pairs looking for a match for any pair
+            // in the entire lines array starting at the initial
+            // intLinesCtr.
+            // this will exit on the first one that it finds
+
+            for (int i = 0; i < myParms.lsBeginDelim.Count; i++) {
+                string strBeginDelim = myParms.lsBeginDelim[i];
+                string strEndDelim = myParms.lsEndDelim[i];
+                // Find location of beginning delim
+                int intBeginDelimLength = strBeginDelim.Length;
+
+                LookForBeginDelim:
+                int indexBeginDelim = myLine.ToUpper().IndexOf(strBeginDelim);
+                // Get the rest of the line after Begin Delim
+                if (indexBeginDelim == -1) {
+                    if (myParms.intLineCtr < myParms.lines.Count()) {
+                        myParms.intLineCtr++;
+                        myLine = myParms.lines[myParms.intLineCtr];
+                        goto LookForBeginDelim;
+                    }
+                }
+
+                // if we went thru the entire lines array
+                // and did not find BeginDelim, we need to
+                // go get the next begin and end delim pair
+                // and start over
+
+                if (indexBeginDelim == -1) {
+                    myParms.intLineCtr = intStartingLine;
+                    myLine = myParms.lines[myParms.intLineCtr];
+                    myLine = myLine.Substring(myParms.intStartingCol);
+                    continue;
+                }
+
+                // we have found the begin delim so we want to save
+                // it as strResultType to tell us which begin and end
+                // delim pair we found. We still need to look for the 
+                // end delim in order to have a successful find
+
+                strBeginDelim = myLine.Substring(indexBeginDelim, intBeginDelimLength);
+                if (myParms.lsBeginDelim.Count > 1) {
+                    myParms.strResultTypeFound = strBeginDelim;
+                }
+                myParms.intDelimFound = i;
+                string d = myLine.Substring(indexBeginDelim + intBeginDelimLength);
+                // Find location of EndDelim
+
+                LookForEndDelim:
+
+                int indexEndDelim = d.IndexOf(strEndDelim);
+                if (indexEndDelim == -1) {
+                    if (myParms.intLineCtr < myParms.lines.Count()) {
+                        myParms.intLineCtr++;
+                        myLine = myParms.lines[myParms.intLineCtr];
+                        goto LookForEndDelim;
+                    }
+                }
+
+                // if we went thru the entire lines array
+                // and did not find EndDelim, we need to
+                // go get the next begin and end delim pair
+                // and start over
+
+                if (indexEndDelim == -1) {
+                    myParms.intLineCtr = intStartingLine;
+                    myLine = myParms.lines[myParms.intLineCtr];
+                    myLine = myLine.Substring(myParms.intStartingCol);
+                    continue;
+                }
+
+                d = d.Substring(0, indexEndDelim);
+                myParms.strDelimitedTextFound = d;
+                myParms.intEndDelimColPosFound = indexEndDelim + strEndDelim.Length;
+                return;
+            }
+
+            if (myParms.lsBeginDelim.Count > 1) {
+                myParms.intLineCtr++;
+                goto ExamineALine;
+            }
+        }
+
     }
 
 }

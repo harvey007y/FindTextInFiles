@@ -54,6 +54,9 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsInput, Version=1.0.4.0, Culture=neutral, PublicKeyToken=9b287f7dc5073cad, processorArchitecture=MSIL">
+      <HintPath>..\packages\InputSimulator.1.0.4.0\lib\net20\WindowsInput.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -63,7 +66,10 @@
     <Compile Include="ComboBoxPair.cs" />
     <Compile Include="ControlEntity.cs" />
     <Compile Include="ControlType.cs" />
+    <Compile Include="FindDelimitedTextParms.cs" />
+    <Compile Include="HotKeyRecord.cs" />
     <Compile Include="Methods.cs" />
+    <Compile Include="StringExtensionMethods.cs" />
     <Compile Include="WindowMultipleControls.xaml.cs">
       <DependentUpon>WindowMultipleControls.xaml</DependentUpon>
     </Compile>
@@ -112,6 +118,7 @@
     </EmbeddedResource>
     <None Include="app.config" />
     <None Include="ClassDiagram1.cd" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

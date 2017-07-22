@@ -10,11 +10,15 @@ using System.Diagnostics;
 using System.Collections;
 using System.Windows.Controls;
 using System.Configuration;
+using WindowsInput;
+using WindowsInput.Native;
+using System.Threading;
 
 namespace FindTextInFiles {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+
     public partial class MainWindow : Window {
         public static string strPathToSearch = @"C:\SVNIA\trunk";
 
@@ -33,8 +37,14 @@ namespace FindTextInFiles {
         public static bool boolUseRegularExpression = false;
 
         public static bool boolStringFoundInFile;
+        string strFindWhat = "";
 
         public static List<MatchInfo> matchInfoList;
+        public static List<HotKeyRecord> listHotKeyRecords;
+        public static Dictionary<string, VirtualKeyCode> dictVirtualKeyCodes = new Dictionary<string, VirtualKeyCode>();
+        bool boolStopEvent = false;
+        IdealAutomate.Core.Methods myActions;
+       
         public MainWindow() {
 
             bool boolRunningFromHome = false;
@@ -49,7 +59,7 @@ namespace FindTextInFiles {
             };
 
             window.Show();
-            IdealAutomate.Core.Methods myActions = new Methods();
+            myActions = new Methods();
             string strScriptName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
             string settingsDirectory = GetAppDirectoryForScript(strScriptName);
             string fileName;
@@ -63,7 +73,77 @@ namespace FindTextInFiles {
             this.Hide();
              strScriptName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
 
+            listHotKeyRecords = new List<HotKeyRecord>();
            
+            HotKeyRecord myHotKeyRecord = new HotKeyRecord();
+            string strHotKey = "Ctrl+Alt+N";
+            myHotKeyRecord.HotKeys = strHotKey.Split('+');
+            myHotKeyRecord.Executable = @"OpenLineInNotepad";
+            myHotKeyRecord.ExecuteContent = null;
+            myHotKeyRecord.ScriptID = 0;
+            bool boolHotKeysGood = true;
+            foreach (string myHotKey in myHotKeyRecord.HotKeys) {
+                if (dictVirtualKeyCodes.ContainsKey(myHotKey)) {
+                    MessageBox.Show("Invalid hotkey: " + myHotKey);
+                    boolHotKeysGood = false;
+                }
+            }
+            if (boolHotKeysGood) {
+                listHotKeyRecords.Add(myHotKeyRecord);
+            }
+          
+            dictVirtualKeyCodes.Add("Ctrl", VirtualKeyCode.CONTROL);
+            dictVirtualKeyCodes.Add("Alt", VirtualKeyCode.MENU);
+            dictVirtualKeyCodes.Add("Shift", VirtualKeyCode.SHIFT);
+            dictVirtualKeyCodes.Add("Space", VirtualKeyCode.SPACE);
+            dictVirtualKeyCodes.Add("Up", VirtualKeyCode.UP);
+            dictVirtualKeyCodes.Add("Down", VirtualKeyCode.DOWN);
+            dictVirtualKeyCodes.Add("Left", VirtualKeyCode.LEFT);
+            dictVirtualKeyCodes.Add("Right", VirtualKeyCode.RIGHT);
+            dictVirtualKeyCodes.Add("A", VirtualKeyCode.VK_A);
+            dictVirtualKeyCodes.Add("B", VirtualKeyCode.VK_B);
+            dictVirtualKeyCodes.Add("C", VirtualKeyCode.VK_C);
+            dictVirtualKeyCodes.Add("D", VirtualKeyCode.VK_D);
+            dictVirtualKeyCodes.Add("E", VirtualKeyCode.VK_E);
+            dictVirtualKeyCodes.Add("F", VirtualKeyCode.VK_F);
+            dictVirtualKeyCodes.Add("G", VirtualKeyCode.VK_G);
+            dictVirtualKeyCodes.Add("H", VirtualKeyCode.VK_H);
+            dictVirtualKeyCodes.Add("I", VirtualKeyCode.VK_I);
+            dictVirtualKeyCodes.Add("J", VirtualKeyCode.VK_J);
+            dictVirtualKeyCodes.Add("K", VirtualKeyCode.VK_K);
+            dictVirtualKeyCodes.Add("L", VirtualKeyCode.VK_L);
+            dictVirtualKeyCodes.Add("M", VirtualKeyCode.VK_M);
+            dictVirtualKeyCodes.Add("N", VirtualKeyCode.VK_N);
+            dictVirtualKeyCodes.Add("O", VirtualKeyCode.VK_O);
+            dictVirtualKeyCodes.Add("P", VirtualKeyCode.VK_P);
+            dictVirtualKeyCodes.Add("Q", VirtualKeyCode.VK_Q);
+            dictVirtualKeyCodes.Add("R", VirtualKeyCode.VK_R);
+            dictVirtualKeyCodes.Add("S", VirtualKeyCode.VK_S);
+            dictVirtualKeyCodes.Add("T", VirtualKeyCode.VK_T);
+            dictVirtualKeyCodes.Add("U", VirtualKeyCode.VK_U);
+            dictVirtualKeyCodes.Add("V", VirtualKeyCode.VK_V);
+            dictVirtualKeyCodes.Add("W", VirtualKeyCode.VK_W);
+            dictVirtualKeyCodes.Add("X", VirtualKeyCode.VK_X);
+            dictVirtualKeyCodes.Add("Y", VirtualKeyCode.VK_Y);
+            dictVirtualKeyCodes.Add("Z", VirtualKeyCode.VK_Z);
+            // Create a timer and set a two millisecond interval.
+            System.Timers.Timer aTimer = new System.Timers.Timer();
+            aTimer.Interval = 2;
+
+            // Alternate method: create a Timer with an interval argument to the constructor. 
+            //aTimer = new System.Timers.Timer(2000); 
+
+            // Create a timer with a two millisecond interval.
+            aTimer = new System.Timers.Timer(2);
+
+            // Hook up the Elapsed event for the timer. 
+            aTimer.Elapsed += OnTimedEvent;
+
+            // Have the timer fire repeated events (true is the default)
+            aTimer.AutoReset = true;
+
+            // Start the timer
+            aTimer.Enabled = true;
             DisplayFindTextInFilesWindow:
             int intRowCtr = 0;
             ControlEntity myControlEntity = new ControlEntity();
@@ -129,7 +209,7 @@ namespace FindTextInFiles {
             myControlEntity.SelectedValue = myActions.ReadValueFromAppDataFile(settingsDirectory, fileName);
             myControlEntity.ID = "cbxFileType";
             myControlEntity.RowNumber = intRowCtr;
-            myControlEntity.ToolTipx = "";
+            myControlEntity.ToolTipx = "Here is an example: *.*";
             //foreach (var item in alcbxFileType) {
             //    cbp1.Add(new ComboBoxPair(item.ToString(), item.ToString()));
             //}
@@ -155,10 +235,10 @@ namespace FindTextInFiles {
             myControlEntity.ControlEntitySetDefaults();
             myControlEntity.ControlType = ControlType.ComboBox;
             fileName = "cbxExcludeSelectedValue.txt";
-            myControlEntity.SelectedValue = myActions.ReadValueFromAppDataFile(settingsDirectory, fileName);
+            myControlEntity.SelectedValue =  myActions.ReadValueFromAppDataFile(settingsDirectory, fileName);
             myControlEntity.ID = "cbxExclude";
             myControlEntity.RowNumber = intRowCtr;
-            myControlEntity.ToolTipx = "";
+            myControlEntity.ToolTipx = "Here is an example: *.dll;*.exe;*.png;*.xml;*.cache;*.sln;*.suo;*.pdb;*.csproj;*.deploy";
             myControlEntity.ComboBoxIsEditable = true;
             myControlEntity.ColumnNumber = 1;
             myControlEntity.ColumnSpan = 2;
@@ -182,7 +262,7 @@ namespace FindTextInFiles {
             myControlEntity.SelectedValue = myActions.ReadValueFromAppDataFile(settingsDirectory, fileName);
             myControlEntity.ID = "cbxFolder";
             myControlEntity.RowNumber = intRowCtr;
-            myControlEntity.ToolTipx = "";
+            myControlEntity.ToolTipx = @"Here is an example: C:\Users\harve\Documents\GitHub";
             myControlEntity.ComboBoxIsEditable = true;
             myControlEntity.ColumnNumber = 1;
             myControlEntity.ColumnSpan = 2;
@@ -244,7 +324,7 @@ namespace FindTextInFiles {
             boolMatchCase = myListControlEntity.Find(x => x.ID == "chkMatchCase").Checked;
             boolUseRegularExpression = myListControlEntity.Find(x => x.ID == "chkUseRegularExpression").Checked;
 
-            string strFindWhat = myListControlEntity.Find(x => x.ID == "cbxFindWhat").SelectedValue;
+            strFindWhat = myListControlEntity.Find(x => x.ID == "cbxFindWhat").SelectedValue;
           //  string strFindWhatKey = myListControlEntity.Find(x => x.ID == "cbxFindWhat").SelectedKey;
 
             string strFileType = myListControlEntity.Find(x => x.ID == "cbxFileType").SelectedValue;
@@ -459,7 +539,7 @@ namespace FindTextInFiles {
                 string strContent = @"C:\Data\MatchInfo.txt";
                 Process.Start(strExecutable, string.Concat("", strContent, ""));
 
-                myActions.MessageBoxShow("RunTime: " + elapsedTime + "\n\r\n\rHits: " + intHits.ToString() + "\n\r\n\rFiles with hits: " + intUniqueFiles.ToString());
+                myActions.MessageBoxShow("RunTime: " + elapsedTime + "\n\r\n\rHits: " + intHits.ToString() + "\n\r\n\rFiles with hits: " + intUniqueFiles.ToString() + "\n\r\n\rPut Cursor on line and\n\r press Ctrl+Alt+N\n\rto view detail page. ");
             }
 
 
@@ -666,6 +746,178 @@ namespace FindTextInFiles {
         }
         private bool DoesSettingExist(string settingName) {
             return FindTextInFiles.Properties.Settings.Default.Properties.Cast<SettingsProperty>().Any(prop => prop.Name == settingName);
+        }
+       
+        public void OnTimedEvent(object sender, System.Timers.ElapsedEventArgs e) {
+            InputSimulator myInputSimulator = new InputSimulator();
+
+            if (myInputSimulator.InputDeviceState.IsKeyDown(VirtualKeyCode.CONTROL) || myInputSimulator.InputDeviceState.IsKeyDown(VirtualKeyCode.MENU)) {
+                foreach (HotKeyRecord myHotKeyRecord in listHotKeyRecords) {
+                    bool boolAllHotKeysPressed = true;
+                    foreach (string myHotKey in myHotKeyRecord.HotKeys) {
+                        VirtualKeyCode myVirtualKeyCode;
+                        dictVirtualKeyCodes.TryGetValue(myHotKey, out myVirtualKeyCode);
+                        if (!myInputSimulator.InputDeviceState.IsKeyDown(myVirtualKeyCode)) {
+                            boolAllHotKeysPressed = false;
+                        }
+                    }
+
+
+                    if (boolAllHotKeysPressed && boolStopEvent == false) {
+                        boolStopEvent = true;
+ 
+
+                        if (myHotKeyRecord.Executable == "OpenLineInNotepad") {
+                            OpenLineInNotepad();
+                        }
+
+
+                    }
+
+                    //switch (item.HotKey.ToUpper()) {
+
+                    //  case "P":
+                    //    if (myInputSimulator.InputDeviceState.IsKeyDown(VirtualKeyCode.VK_P)  && boolStopEvent == false) {
+                    //      boolStopEvent = true;
+                    //      RunWaitTillStart(item.Executable, item.ExecuteContent ?? "");
+
+                    //      while (myInputSimulator.InputDeviceState.IsKeyDown(VirtualKeyCode.VK_P)) {
+                    //        System.Threading.Thread.Sleep(1000);
+                    //      }
+                    //    }
+                    //    break;
+
+                    //  case "R":
+                    //    if (myInputSimulator.InputDeviceState.IsKeyDown(VirtualKeyCode.VK_R)) {                
+                    //      Run(item.Executable, item.ExecuteContent ?? "");
+                    //      while (myInputSimulator.InputDeviceState.IsKeyDown(VirtualKeyCode.CONTROL)) {
+                    //        System.Threading.Thread.Sleep(200);
+                    //      }
+                    //    }
+                    //    break;
+                    //  case "S":
+                    //    if (myInputSimulator.InputDeviceState.IsKeyDown(VirtualKeyCode.VK_S)) {
+                    //      Run(item.Executable, item.ExecuteContent ?? "");
+                    //      while (myInputSimulator.InputDeviceState.IsKeyDown(VirtualKeyCode.CONTROL)) {
+                    //        System.Threading.Thread.Sleep(200);
+                    //      }
+                    //   }
+                    //    break;
+                    //  default:
+                    //    break;
+                    //}
+                }
+            }
+
+
+
+
+
+            //if (myInputSimulator.InputDeviceState.IsKeyDown(VirtualKeyCode.CONTROL) && myInputSimulator.InputDeviceState.IsKeyDown(VirtualKeyCode.MENU) && myInputSimulator.InputDeviceState.IsKeyDown(VirtualKeyCode.VK_S)) {
+
+
+            //  Run(myActions.GetValueByKey("SVNPath","IdealAutomateDB") + ClipboardSaveToDB\ClipboardSaveToDB\bin\Debug\ClipboardSaveToDB.exe", "");
+            //  while (myInputSimulator.InputDeviceState.IsKeyDown(VirtualKeyCode.CONTROL) && myInputSimulator.InputDeviceState.IsKeyDown(VirtualKeyCode.MENU) && myInputSimulator.InputDeviceState.IsKeyDown(VirtualKeyCode.VK_S)) {
+            //    System.Threading.Thread.Sleep(200);
+            //  }
+
+
+            //  //Here is the code that runs when the hotkey is pressed'
+            //}
+            //if (myInputSimulator.InputDeviceState.IsKeyDown(VirtualKeyCode.CONTROL) && myInputSimulator.InputDeviceState.IsKeyDown(VirtualKeyCode.MENU) && myInputSimulator.InputDeviceState.IsKeyDown(VirtualKeyCode.VK_R)) {
+
+            //  //Here is the code that runs when the hotkey is pressed'
+
+
+            //  Run(myActions.GetValueByKey("SVNPath","IdealAutomateDB") + ClipboardRestoreFromDB\ClipboardRestoreFromDB\bin\Debug\ClipboardRestoreFromDB.exe", "");
+            //  while (myInputSimulator.InputDeviceState.IsKeyDown(VirtualKeyCode.CONTROL) && myInputSimulator.InputDeviceState.IsKeyDown(VirtualKeyCode.MENU) && myInputSimulator.InputDeviceState.IsKeyDown(VirtualKeyCode.VK_R)) {
+            //    System.Threading.Thread.Sleep(200);
+            //  }
+
+
+
+            //}
+        }
+        static void RunAsSTAThread(Action goForIt) {
+            AutoResetEvent @event = new AutoResetEvent(false);
+            Thread thread = new Thread(
+                () => {
+                    goForIt();
+                    @event.Set();
+                });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            @event.WaitOne();
+        }
+        private void OpenLineInNotepad() {
+            myActions.TypeText("{RIGHT}", 500);
+            myActions.TypeText("{HOME}", 500);
+            myActions.TypeText("+({END})", 500);
+            myActions.TypeText("^(c)", 500);
+            myActions.Sleep(500);
+            string strCurrentLine = "";
+            RunAsSTAThread(
+            () => {
+                strCurrentLine = myActions.PutClipboardInEntity();
+            });
+            List<string> myBeginDelim = new List<string>();
+            List<string> myEndDelim = new List<string>();
+            myBeginDelim.Add("\"");
+            myEndDelim.Add("\"");
+            FindDelimitedTextParms delimParms = new FindDelimitedTextParms(myBeginDelim, myEndDelim);
+
+            string myQuote = "\"";
+            delimParms.lines[0] = strCurrentLine;
+
+
+            myActions.FindDelimitedText(delimParms);
+            int intLastSlash = delimParms.strDelimitedTextFound.LastIndexOf('\\');
+            if (intLastSlash < 1) {
+                myActions.MessageBoxShow("Could not find last slash in in EditPlusLine - aborting");
+                return;
+            }
+            string strPathOnly = delimParms.strDelimitedTextFound.SubstringBetweenIndexes(0, intLastSlash);
+            string strFileNameOnly = delimParms.strDelimitedTextFound.Substring(intLastSlash + 1);
+            string strFullFileName = delimParms.strDelimitedTextFound;
+            myBeginDelim.Clear();
+            myEndDelim.Clear();
+            myBeginDelim.Add("(");
+            myEndDelim.Add(",");
+            delimParms = new FindDelimitedTextParms(myBeginDelim, myEndDelim);
+            delimParms.lines[0] = strCurrentLine;
+            myActions.FindDelimitedText(delimParms);
+            string strLineNumber = delimParms.strDelimitedTextFound;
+            string strExecutable = @"C:\Program Files (x86)\Notepad++\notepad++.exe";
+            string strContent = strFullFileName;
+            Process.Start(strExecutable, string.Concat("", strContent, ""));
+            myActions.TypeText("^(g)", 2000);
+            myActions.TypeText(strLineNumber, 500);
+            myActions.TypeText("{ENTER}", 500);
+            myActions.TypeText("^(f)", 500);
+
+            string strFindWhatToUse = strFindWhat;
+            string blockText = strFindWhatToUse;
+            strFindWhatToUse = "";
+            char[] specialChars = { '{', '}', '(', ')', '+', '^' };
+
+            foreach (char letter in blockText) {
+                bool _specialCharFound = false;
+
+                for (int i = 0; i < specialChars.Length; i++) {
+                    if (letter == specialChars[i]) {
+                        _specialCharFound = true;
+                        break;
+                    }
+                }
+
+                if (_specialCharFound)
+                    strFindWhatToUse += "{" + letter.ToString() + "}";
+                else
+                    strFindWhatToUse += letter.ToString();
+            }
+            myActions.TypeText(strFindWhatToUse, 500);
+            myActions.TypeText("{ENTER}", 500);
+            myActions.TypeText("{ESC}", 500);
         }
     }
 }
