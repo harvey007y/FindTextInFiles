@@ -155,7 +155,7 @@ namespace FindTextInFiles {
             myControlEntity.ControlEntitySetDefaults();
             myControlEntity.ControlType = ControlType.Heading;
             myControlEntity.ID = "lbl";
-            myControlEntity.Text = "Find In Files";
+            myControlEntity.Text = "Find Text In Files";
             myControlEntity.RowNumber = intRowCtr;
             myControlEntity.ColumnNumber = 0;
             myListControlEntity.Add(myControlEntity.CreateControlEntity());
@@ -918,6 +918,7 @@ namespace FindTextInFiles {
             myActions.TypeText(strFindWhatToUse, 500);
             myActions.TypeText("{ENTER}", 500);
             myActions.TypeText("{ESC}", 500);
+            boolStopEvent = false;
         }
     }
 }
