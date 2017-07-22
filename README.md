@@ -1,7 +1,7 @@
 # FindTextInFiles
 FindTextInFiles is a simple, free, open source C# alternative to EditPlus. FindTextInFiles uses parallel processing to
 quickly search all files in all folders and subfolders of the specified folder. It allows you to exclude certain file
-types, and also lets you specify regular expressions in doing the search. The results are displayed in Notepad++<br/>
+types, and also lets you specify regular expressions in doing the search. The results are displayed in Notepad++<br/><br/>
 Here is a quick three-minute video on how to use FindTextInFiles:<br/>
 <center>
 <a href="https://youtu.be/k-0U9QUkGp0"  target="_blank"><img src="http://www.idealautomate.com/images/FindTextInFilesVideo.PNG" border="0" alt="Find Text In Files Overview Video" /></a>
