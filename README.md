@@ -16,5 +16,10 @@ Here is a quick three-minute video on how to use FindTextInFiles:<br/>
       <center><img src="http://www.idealautomate.com/images/FindTextInFilesDialog.PNG" border="0"  alt="Find Text In Files" /></center><br/>
                          5. Once the search completes, the search results will be posted in Notepad++. <br/><br/>          
            <center><img src="http://www.idealautomate.com/images/NotepadPlusPlus.PNG" border="2" alt="Notepad" /></center><br/> 
-           6. Put your cursor on the line that you are interested in seeing the detail page for, and press Ctrl+Alt+N to view the detail page where that result was found.  
+           6. Put your cursor on the line that you are interested in seeing the detail page for, and press Ctrl+Alt+N to view the detail page where that result was found.  <br/><br/>
+Here is a quick four-minute video that compares three file search utilities with regard to speed and price:<br />
+<center>
+<a href="https://youtu.be/IY-Y5BZUpaM"  target="_blank"><img src="http://www.idealautomate.com/images/CompareFindTextInFilesVideo.PNG" border="0" alt="Compare speed and price for three file search utilities: EditPlus, Agent Ransack, and Find Text In Files" /></a>
+
+</center>
      
