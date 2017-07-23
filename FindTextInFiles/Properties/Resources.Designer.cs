@@ -61,12 +61,12 @@ namespace FindTextInFiles.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
-        internal static System.Drawing.Bitmap FindTextInFiles {
+        internal static System.Drawing.Icon Oxygen_Icons_org_Oxygen_Actions_page_zoom {
             get {
-                object obj = ResourceManager.GetObject("FindTextInFiles", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                object obj = ResourceManager.GetObject("Oxygen_Icons_org_Oxygen_Actions_page_zoom", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
             }
         }
     }

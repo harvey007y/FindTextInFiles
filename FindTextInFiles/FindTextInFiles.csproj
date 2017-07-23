@@ -52,7 +52,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>FindTextInFiles.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\Oxygen-Icons.org-Oxygen-Actions-page-zoom.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>105FFD610246C90E2B92F7F36724C6F1380617BC</ManifestCertificateThumbprint>
@@ -65,6 +65,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <SignManifests>true</SignManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -143,6 +146,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="app.config" />
     <None Include="ClassDiagram1.cd" />
@@ -155,11 +159,7 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\FindTextInFiles.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <None Include="Resources\FindTextInFiles.png" />
-    <Resource Include="FindTextInFilesIcon.ico" />
+    <Resource Include="Resources\Oxygen-Icons.org-Oxygen-Actions-page-zoom.ico" />
     <Resource Include="FindTextInFiles.ico" />
     <Content Include="Images\112_UpArrowShort_Green.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -188,7 +188,6 @@
     <Content Include="Images\imgUpdateLogOK_Home.PNG">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="Resources\FindTextInFilesIcon.ico" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
@@ -197,6 +196,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
