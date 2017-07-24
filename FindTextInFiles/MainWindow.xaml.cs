@@ -501,8 +501,7 @@ namespace FindTextInFiles {
                 lines.Add("\"" + item.FullName + "\"(" + item.LineNumber + "," + item.LinePosition + "): " + item.LineText.Length.ToString() + " " + item.LineText.Substring(0, item.LineText.Length > 5000 ? 5000 : item.LineText.Length));
 
             }
-            //   System.IO.File.WriteAllLines(@"C:\Data\MatchInfo1.txt", lines);
-            using (FileStream fs = new FileStream(@"C:\Data\MatchInfo.txt", FileMode.Create)) {
+            using (FileStream fs = new FileStream(settingsDirectory + @"\MatchInfo.txt", FileMode.Create)) {
                 StreamWriter file = new System.IO.StreamWriter(fs, Encoding.Default);
 
                 file.WriteLine(@"-- " + strSearchText + " in " + strPathToSearch + " from " + strSearchPattern + " excl  " + strSearchExcludePattern + " --");
@@ -536,7 +535,7 @@ namespace FindTextInFiles {
                 Console.WriteLine(intUniqueFiles.ToString() + " files with hits");
                 Console.ReadLine();
                 string strExecutable = @"C:\Program Files (x86)\Notepad++\notepad++.exe";
-                string strContent = @"C:\Data\MatchInfo.txt";
+                string strContent = settingsDirectory + @"\MatchInfo.txt";
                 Process.Start(strExecutable, string.Concat("", strContent, ""));
 
                 myActions.MessageBoxShow("RunTime: " + elapsedTime + "\n\r\n\rHits: " + intHits.ToString() + "\n\r\n\rFiles with hits: " + intUniqueFiles.ToString() + "\n\r\n\rPut Cursor on line and\n\r press Ctrl+Alt+N\n\rto view detail page. ");
