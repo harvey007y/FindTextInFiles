@@ -405,7 +405,9 @@ namespace IdealAutomate.Core {
             string settingsPath = System.IO.Path.Combine(settingsDirectory, fileName);
             using (StreamWriter objSWFile = File.CreateText(settingsPath)) {
                 foreach (ComboBoxPair item in alHostsNew) {
-                    objSWFile.WriteLine(item._Key + '^' + item._Value);
+                    if (item._Key != "") {
+                        objSWFile.WriteLine(item._Key + '^' + item._Value);
+                    }
                 }
                 objSWFile.Close();
             }
