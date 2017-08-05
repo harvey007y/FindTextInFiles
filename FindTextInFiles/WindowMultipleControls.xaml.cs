@@ -386,7 +386,7 @@ namespace IdealAutomate.Core {
             alHostsNew.Add(myCbp);
 
             foreach (ComboBoxPair item in alHosts) {
-                if (strNewHostName != item._Key && item._Key != "") {
+                if (strNewHostName != item._Key) {
                     boolNewItem = true;
                     alHostsNew.Add(item);
                 }
@@ -404,7 +404,7 @@ namespace IdealAutomate.Core {
             string fileName = ((ComboBox)sender).Name + ".txt";
             string settingsPath = System.IO.Path.Combine(settingsDirectory, fileName);
             using (StreamWriter objSWFile = File.CreateText(settingsPath)) {
-                foreach (ComboBoxPair item in alHostsNew.OrderBy(x => x._Key)) {
+                foreach (ComboBoxPair item in alHostsNew) {
                     objSWFile.WriteLine(item._Key + '^' + item._Value);
                 }
                 objSWFile.Close();
