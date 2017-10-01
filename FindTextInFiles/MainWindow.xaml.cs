@@ -14,6 +14,7 @@ using WindowsInput;
 using WindowsInput.Native;
 using System.Threading;
 
+
 namespace FindTextInFiles {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -44,7 +45,7 @@ namespace FindTextInFiles {
         public static Dictionary<string, VirtualKeyCode> dictVirtualKeyCodes = new Dictionary<string, VirtualKeyCode>();
         bool boolStopEvent = false;
         IdealAutomate.Core.Methods myActions;
-       
+
         public MainWindow() {
 
             bool boolRunningFromHome = false;
@@ -60,21 +61,18 @@ namespace FindTextInFiles {
 
             window.Show();
             myActions = new Methods();
-            string strScriptName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
-            string settingsDirectory = GetAppDirectoryForScript(strScriptName);
-            string fileName;
-            string strSavedDomainName;
-            fileName = "DomainName.txt";
-            strSavedDomainName = myActions.ReadValueFromAppDataFile(settingsDirectory, fileName);
+            myActions.ScriptStartedUpdateStats();
+
+            string strSavedDomainName = myActions.GetValueByKey("DomainName");
             if (strSavedDomainName == "") {
                 strSavedDomainName = System.Net.NetworkInformation.IPGlobalProperties.GetIPGlobalProperties().DomainName;
             }
             InitializeComponent();
             this.Hide();
-             strScriptName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
+
 
             listHotKeyRecords = new List<HotKeyRecord>();
-           
+
             HotKeyRecord myHotKeyRecord = new HotKeyRecord();
             string strHotKey = "Ctrl+Alt+N";
             myHotKeyRecord.HotKeys = strHotKey.Split('+');
@@ -91,7 +89,7 @@ namespace FindTextInFiles {
             if (boolHotKeysGood) {
                 listHotKeyRecords.Add(myHotKeyRecord);
             }
-          
+
             dictVirtualKeyCodes.Add("Ctrl", VirtualKeyCode.CONTROL);
             dictVirtualKeyCodes.Add("Alt", VirtualKeyCode.MENU);
             dictVirtualKeyCodes.Add("Shift", VirtualKeyCode.SHIFT);
@@ -171,12 +169,11 @@ namespace FindTextInFiles {
             myControlEntity.ColumnSpan = 1;
             myListControlEntity.Add(myControlEntity.CreateControlEntity());
 
-  
+
 
             myControlEntity.ControlEntitySetDefaults();
             myControlEntity.ControlType = ControlType.ComboBox;
-            fileName = "cbxFindWhatSelectedValue.txt";
-            myControlEntity.SelectedValue = myActions.ReadValueFromAppDataFile(settingsDirectory, fileName);
+            myControlEntity.SelectedValue = myActions.GetValueByKey("cbxFindWhatSelectedValue");
             myControlEntity.ID = "cbxFindWhat";
             myControlEntity.RowNumber = intRowCtr;
             myControlEntity.ToolTipx = "";
@@ -205,8 +202,7 @@ namespace FindTextInFiles {
 
             myControlEntity.ControlEntitySetDefaults();
             myControlEntity.ControlType = ControlType.ComboBox;
-            fileName = "cbxFileTypeSelectedValue.txt";
-            myControlEntity.SelectedValue = myActions.ReadValueFromAppDataFile(settingsDirectory, fileName);
+            myControlEntity.SelectedValue = myActions.GetValueByKey("cbxFileTypeSelectedValue");
             myControlEntity.ID = "cbxFileType";
             myControlEntity.RowNumber = intRowCtr;
             myControlEntity.ToolTipx = "Here is an example: *.*";
@@ -234,8 +230,7 @@ namespace FindTextInFiles {
 
             myControlEntity.ControlEntitySetDefaults();
             myControlEntity.ControlType = ControlType.ComboBox;
-            fileName = "cbxExcludeSelectedValue.txt";
-            myControlEntity.SelectedValue =  myActions.ReadValueFromAppDataFile(settingsDirectory, fileName);
+            myControlEntity.SelectedValue = myActions.GetValueByKey("cbxExcludeSelectedValue");
             myControlEntity.ID = "cbxExclude";
             myControlEntity.RowNumber = intRowCtr;
             myControlEntity.ToolTipx = "Here is an example: *.dll;*.exe;*.png;*.xml;*.cache;*.sln;*.suo;*.pdb;*.csproj;*.deploy";
@@ -258,8 +253,7 @@ namespace FindTextInFiles {
 
             myControlEntity.ControlEntitySetDefaults();
             myControlEntity.ControlType = ControlType.ComboBox;
-            fileName = "cbxFolderSelectedValue.txt";
-            myControlEntity.SelectedValue = myActions.ReadValueFromAppDataFile(settingsDirectory, fileName);
+            myControlEntity.SelectedValue = myActions.GetValueByKey("cbxFolderSelectedValue");
             myControlEntity.ID = "cbxFolder";
             myControlEntity.RowNumber = intRowCtr;
             myControlEntity.ToolTipx = @"Here is an example: C:\Users\harve\Documents\GitHub";
@@ -270,8 +264,8 @@ namespace FindTextInFiles {
 
             myControlEntity.ControlEntitySetDefaults();
             myControlEntity.ControlType = ControlType.Button;
-            myControlEntity.ID = "btnSelectFolder";     
-            myControlEntity.Text = "Select Folder...";            
+            myControlEntity.ID = "btnSelectFolder";
+            myControlEntity.Text = "Select Folder...";
             myControlEntity.RowNumber = intRowCtr;
             myControlEntity.ColumnNumber = 3;
             myListControlEntity.Add(myControlEntity.CreateControlEntity());
@@ -285,8 +279,7 @@ namespace FindTextInFiles {
             myControlEntity.RowNumber = intRowCtr;
             myControlEntity.ColumnNumber = 0;
             myControlEntity.ColumnSpan = 1;
-            fileName = "chkMatchCase.txt";
-            string strMatchCase = myActions.ReadValueFromAppDataFile(settingsDirectory, fileName);
+            string strMatchCase = myActions.GetValueByKey("chkMatchCase");
 
             if (strMatchCase.ToLower() == "true") {
                 myControlEntity.Checked = true;
@@ -304,8 +297,7 @@ namespace FindTextInFiles {
             myControlEntity.RowNumber = intRowCtr;
             myControlEntity.ColumnNumber = 0;
             myControlEntity.ColumnSpan = 1;
-            fileName = "chkUseRegularExpression.txt";
-            string strUseRegularExpression = myActions.ReadValueFromAppDataFile(settingsDirectory, fileName);
+            string strUseRegularExpression = myActions.GetValueByKey("chkUseRegularExpression");
             if (strUseRegularExpression.ToLower() == "true") {
                 myControlEntity.Checked = true;
             } else {
@@ -325,72 +317,67 @@ namespace FindTextInFiles {
             boolUseRegularExpression = myListControlEntity.Find(x => x.ID == "chkUseRegularExpression").Checked;
 
             strFindWhat = myListControlEntity.Find(x => x.ID == "cbxFindWhat").SelectedValue;
-          //  string strFindWhatKey = myListControlEntity.Find(x => x.ID == "cbxFindWhat").SelectedKey;
+            //  string strFindWhatKey = myListControlEntity.Find(x => x.ID == "cbxFindWhat").SelectedKey;
 
             string strFileType = myListControlEntity.Find(x => x.ID == "cbxFileType").SelectedValue;
-       //     string strFileTypeKey = myListControlEntity.Find(x => x.ID == "cbxFileType").SelectedKey;
+            //     string strFileTypeKey = myListControlEntity.Find(x => x.ID == "cbxFileType").SelectedKey;
 
             string strExclude = myListControlEntity.Find(x => x.ID == "cbxExclude").SelectedValue;
-      //      string strExcludeKey = myListControlEntity.Find(x => x.ID == "cbxExclude").SelectedKey;
+            //      string strExcludeKey = myListControlEntity.Find(x => x.ID == "cbxExclude").SelectedKey;
 
             string strFolder = myListControlEntity.Find(x => x.ID == "cbxFolder").SelectedValue;
             //     string strFolderKey = myListControlEntity.Find(x => x.ID == "cbxFolder").SelectedKey;
-            fileName = "chkMatchCase.txt";
-            myActions.WriteValueToAppDirectoryFile(settingsDirectory, fileName, boolMatchCase.ToString());
-            fileName = "chkUseRegularExpression.txt";
-            myActions.WriteValueToAppDirectoryFile(settingsDirectory, fileName, boolUseRegularExpression.ToString());
-            fileName = "cbxFindWhatSelectedValue.txt";
-            myActions.WriteValueToAppDirectoryFile(settingsDirectory, fileName, strFindWhat);
-            fileName = "cbxFileTypeSelectedValue.txt";
-            myActions.WriteValueToAppDirectoryFile(settingsDirectory, fileName, strFileType);
-            fileName = "cbxExcludeSelectedValue.txt";
-            myActions.WriteValueToAppDirectoryFile(settingsDirectory, fileName, strExclude);
-            fileName = "cbxFolderSelectedValue.txt";
-            myActions.WriteValueToAppDirectoryFile(settingsDirectory, fileName, strFolder);
-
+            myActions.SetValueByKey("chkMatchCase", boolMatchCase.ToString());
+            myActions.SetValueByKey("chkUseRegularExpression", boolUseRegularExpression.ToString());
+            myActions.SetValueByKey("cbxFindWhatSelectedValue", strFindWhat);
+            myActions.SetValueByKey("cbxFileTypeSelectedValue", strFileType);
+            myActions.SetValueByKey("cbxExcludeSelectedValue", strExclude);
+            myActions.SetValueByKey("cbxFolderSelectedValue", strFolder);
+            string settingsDirectory = "";
             if (strButtonPressed == "btnSelectFolder") {
-                fileName = "LastSearchFolder.txt";               
-                 var dialog = new System.Windows.Forms.FolderBrowserDialog();
-                dialog.SelectedPath = myActions.ReadValueFromAppDataFile(settingsDirectory, fileName);
+                var dialog = new System.Windows.Forms.FolderBrowserDialog();
+                dialog.SelectedPath = myActions.GetValueByKey("LastSearchFolder");
                 string str = "LastSearchFolder";
 
-               
+
                 System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+
                 if (result == System.Windows.Forms.DialogResult.OK && Directory.Exists(dialog.SelectedPath)) {
                     myListControlEntity.Find(x => x.ID == "cbxFolder").SelectedValue = dialog.SelectedPath;
                     myListControlEntity.Find(x => x.ID == "cbxFolder").SelectedKey = dialog.SelectedPath;
-                    myListControlEntity.Find(x => x.ID == "cbxFolder").Text = dialog.SelectedPath;                   
-                    fileName = "LastSearchFolder.txt";
-                    myActions.WriteValueToAppDirectoryFile(settingsDirectory, fileName, dialog.SelectedPath);                   
+                    myListControlEntity.Find(x => x.ID == "cbxFolder").Text = dialog.SelectedPath;
+                    myActions.SetValueByKey("LastSearchFolder", dialog.SelectedPath);
                     strFolder = dialog.SelectedPath;
-                    fileName = "cbxFolderSelectedValue.txt";
-                    myActions.WriteValueToAppDirectoryFile(settingsDirectory, fileName, strFolder);
-                    strScriptName = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
-                    fileName = "cbxFolder.txt";
+                    myActions.SetValueByKey("cbxFolderSelectedValue", strFolder);
+                    string strScriptName = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
+                    string fileName = "cbxFolder.txt";
+                    string strApplicationBinDebug = System.Windows.Forms.Application.StartupPath;
+                    string myNewProjectSourcePath = strApplicationBinDebug.Replace("\\bin\\Debug", "");
+                    settingsDirectory = GetAppDirectoryForScript(myActions.ConvertFullFileNameToScriptPath(myNewProjectSourcePath));
                     string settingsPath = System.IO.Path.Combine(settingsDirectory, fileName);
                     ArrayList alHosts = new ArrayList();
                     cbp = new List<ComboBoxPair>();
                     cbp.Clear();
                     cbp.Add(new ComboBoxPair("--Select Item ---", "--Select Item ---"));
                     ComboBox myComboBox = new ComboBox();
- 
 
-                        if (!File.Exists(settingsPath)) {
-                            using (StreamWriter objSWFile = File.CreateText(settingsPath)) {
-                                objSWFile.Close();
+
+                    if (!File.Exists(settingsPath)) {
+                        using (StreamWriter objSWFile = File.CreateText(settingsPath)) {
+                            objSWFile.Close();
+                        }
+                    }
+                    using (StreamReader objSRFile = File.OpenText(settingsPath)) {
+                        string strReadLine = "";
+                        while ((strReadLine = objSRFile.ReadLine()) != null) {
+                            string[] keyvalue = strReadLine.Split('^');
+                            if (keyvalue[0] != "--Select Item ---") {
+                                cbp.Add(new ComboBoxPair(keyvalue[0], keyvalue[1]));
                             }
                         }
-                        using (StreamReader objSRFile = File.OpenText(settingsPath)) {
-                            string strReadLine = "";
-                            while ((strReadLine = objSRFile.ReadLine()) != null) {
-                                string[] keyvalue = strReadLine.Split('^');
-                                if (keyvalue[0] != "--Select Item ---") {
-                                    cbp.Add(new ComboBoxPair(keyvalue[0], keyvalue[1]));
-                                }
-                            }
-                            objSRFile.Close();
-                        }
-                       string strNewHostName = dialog.SelectedPath;
+                        objSRFile.Close();
+                    }
+                    string strNewHostName = dialog.SelectedPath;
                     List<ComboBoxPair> alHostx = cbp;
                     List<ComboBoxPair> alHostsNew = new List<ComboBoxPair>();
                     ComboBoxPair myCbp = new ComboBoxPair(strNewHostName, strNewHostName);
@@ -401,15 +388,15 @@ namespace FindTextInFiles {
                         for (int i = alHostx.Count - 1; i > 0; i--) {
                             if (alHostx[i]._Key.Trim() != "--Select Item ---") {
                                 alHostx.RemoveAt(i);
-                                break;                            
+                                break;
                             }
                         }
                     }
-                    foreach (ComboBoxPair item in alHostx) {                        
+                    foreach (ComboBoxPair item in alHostx) {
                         if (strNewHostName != item._Key && item._Key != "--Select Item ---") {
                             boolNewItem = true;
                             alHostsNew.Add(item);
-                        }                        
+                        }
                     }
 
                     using (StreamWriter objSWFile = File.CreateText(settingsPath)) {
@@ -436,32 +423,32 @@ namespace FindTextInFiles {
                     myActions.MessageBoxShow("Please enter File Type or select File Type from ComboBox; else press Cancel to Exit");
                     goto DisplayFindTextInFilesWindow;
                 }
-                if ( (strExclude == "--Select Item ---" || strExclude == "")) {
+                if ((strExclude == "--Select Item ---" || strExclude == "")) {
                     myActions.MessageBoxShow("Please enter Exclude or select Exclude from ComboBox; else press Cancel to Exit");
                     goto DisplayFindTextInFilesWindow;
                 }
-                if ( (strFolder == "--Select Item ---" || strFolder == "")) {
+                if ((strFolder == "--Select Item ---" || strFolder == "")) {
                     myActions.MessageBoxShow("Please enter Folder or select Folder from ComboBox; else press Cancel to Exit");
                     goto DisplayFindTextInFilesWindow;
                 }
 
 
-  
-                    strFindWhatToUse = strFindWhat;
- 
+
+                strFindWhatToUse = strFindWhat;
+
                 if (boolUseRegularExpression) {
                     strFindWhatToUse = strFindWhatToUse.Replace(")", "\\)").Replace("(", "\\(");
                 }
 
- 
-                    strFileTypeToUse = strFileType;
+
+                strFileTypeToUse = strFileType;
 
 
 
-                    strExcludeToUse = strExclude;
+                strExcludeToUse = strExclude;
 
- 
-                    strFolderToUse = strFolder;
+
+                strFolderToUse = strFolder;
 
 
             }
@@ -476,9 +463,8 @@ namespace FindTextInFiles {
             strSearchText = strFindWhatToUse;
 
             strLowerCaseSearchText = strFindWhatToUse.ToLower();
-            fileName = "FindWhatToUse.txt";
-            myActions.WriteValueToAppDirectoryFile(settingsDirectory, fileName, strFindWhatToUse);
- 
+            myActions.SetValueByKey("FindWhatToUse", strFindWhatToUse);
+
             System.Diagnostics.Stopwatch st = new System.Diagnostics.Stopwatch();
             st.Start();
             intHits = 0;
@@ -501,6 +487,12 @@ namespace FindTextInFiles {
                 lines.Add("\"" + item.FullName + "\"(" + item.LineNumber + "," + item.LinePosition + "): " + item.LineText.Length.ToString() + " " + item.LineText.Substring(0, item.LineText.Length > 5000 ? 5000 : item.LineText.Length));
 
             }
+           
+          
+            string strApplicationBinDebug1 = System.Windows.Forms.Application.StartupPath;
+            string myNewProjectSourcePath1 = strApplicationBinDebug1.Replace("\\bin\\Debug", "");
+
+            settingsDirectory = GetAppDirectoryForScript(myActions.ConvertFullFileNameToScriptPath(myNewProjectSourcePath1));
             using (FileStream fs = new FileStream(settingsDirectory + @"\MatchInfo.txt", FileMode.Create)) {
                 StreamWriter file = new System.IO.StreamWriter(fs, Encoding.Default);
 
@@ -549,7 +541,16 @@ namespace FindTextInFiles {
 
 
             myExit:
+            myActions.ScriptEndedSuccessfullyUpdateStats();
             Application.Current.Shutdown();
+        }
+        public string GetAppDirectoryForScript(string strScriptName) {
+            string settingsDirectory =
+      Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\IdealAutomate\\" + strScriptName;
+            if (!Directory.Exists(settingsDirectory)) {
+                Directory.CreateDirectory(settingsDirectory);
+            }
+            return settingsDirectory;
         }
         public static List<FileInfo> TraverseTree(string filterPattern, string root) {
             string[] arrayExclusionPatterns = strSearchExcludePattern.Split(';');
@@ -560,10 +561,10 @@ namespace FindTextInFiles {
             // Data structure to hold names of subfolders to be
             // examined for files.
             Stack<string> dirs = new Stack<string>(20);
-         
-                if (!System.IO.Directory.Exists(root)) {
-                    MessageBox.Show(root + " - folder did not exist");
-                }
+
+            if (!System.IO.Directory.Exists(root)) {
+                MessageBox.Show(root + " - folder did not exist");
+            }
 
 
             dirs.Push(root);
@@ -713,40 +714,10 @@ namespace FindTextInFiles {
                 }
             }
         }
-        private string GetAppDirectoryForScript(string strScriptName) {
-            string settingsDirectory =
-      Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\IdealAutomate\\" + strScriptName;
-            if (!Directory.Exists(settingsDirectory)) {
-                Directory.CreateDirectory(settingsDirectory);
-            }
-            return settingsDirectory;
-        }
-        private ArrayList ReadAppDirectoryFileToArrayList(string settingsDirectory, string fileName) {
-            ArrayList myArrayList = new ArrayList();
-            string settingsPath = Path.Combine(settingsDirectory, fileName);
-            StreamReader reader = File.OpenText(settingsPath);
-            while (!reader.EndOfStream) {
-                string myLine = reader.ReadLine();
-                myArrayList.Add(myLine);
-            }
-            reader.Close();
-            return myArrayList;
-        }
-        private void WriteArrayListToAppDirectoryFile(string settingsDirectory, string fileName, ArrayList arrayListToWrite) {
-            StreamWriter writer = null;
-            string settingsPath = Path.Combine(settingsDirectory, fileName);
-            // Hook a write to the text file.
-            writer = new StreamWriter(settingsPath);
-            // Rewrite the entire value of s to the file
-            foreach (var item in arrayListToWrite) {
-                writer.WriteLine(item.ToString());
-            }
-            writer.Close();
-        }
         private bool DoesSettingExist(string settingName) {
             return FindTextInFiles.Properties.Settings.Default.Properties.Cast<SettingsProperty>().Any(prop => prop.Name == settingName);
         }
-       
+
         public void OnTimedEvent(object sender, System.Timers.ElapsedEventArgs e) {
             InputSimulator myInputSimulator = new InputSimulator();
 
@@ -764,7 +735,7 @@ namespace FindTextInFiles {
 
                     if (boolAllHotKeysPressed && boolStopEvent == false) {
                         boolStopEvent = true;
- 
+
 
                         if (myHotKeyRecord.Executable == "OpenLineInNotepad") {
                             OpenLineInNotepad();

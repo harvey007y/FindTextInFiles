@@ -205,8 +205,11 @@ namespace IdealAutomate.Core {
                         myGrid.Children.Add(myPasswordBox);
                         break;
                     case ControlType.ComboBox:
+                        Methods myActions = new Methods();
                         string strScriptName = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
-                        string settingsDirectory = GetAppDirectoryForScript(strScriptName);
+                        string strApplicationBinDebug = System.Windows.Forms.Application.StartupPath;
+                        string myNewProjectSourcePath = strApplicationBinDebug.Replace("\\bin\\Debug", "");
+                        string settingsDirectory = GetAppDirectoryForScript(myActions.ConvertFullFileNameToScriptPath(myNewProjectSourcePath));
                         string fileName = item.ID + ".txt";
                         string settingsPath = System.IO.Path.Combine(settingsDirectory, fileName);
                         ArrayList alHosts = new ArrayList();
@@ -399,9 +402,15 @@ namespace IdealAutomate.Core {
                     }
                 }
             }
-            string strScriptName = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
-            string settingsDirectory = GetAppDirectoryForScript(strScriptName);
+
             string fileName = ((ComboBox)sender).Name + ".txt";
+ 
+            Methods myActions = new Methods();
+            string strScriptName = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
+            string strApplicationBinDebug = System.Windows.Forms.Application.StartupPath;
+            string myNewProjectSourcePath = strApplicationBinDebug.Replace("\\bin\\Debug", "");
+            string settingsDirectory = GetAppDirectoryForScript(myActions.ConvertFullFileNameToScriptPath(myNewProjectSourcePath));
+
             string settingsPath = System.IO.Path.Combine(settingsDirectory, fileName);
             using (StreamWriter objSWFile = File.CreateText(settingsPath)) {
                 foreach (ComboBoxPair item in alHostsNew) {

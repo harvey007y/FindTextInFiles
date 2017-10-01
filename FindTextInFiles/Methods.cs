@@ -525,18 +525,18 @@ namespace IdealAutomate.Core {
             }
 
 
-                System.Windows.Forms.SendKeys.SendWait(myEntity);
-   
+            System.Windows.Forms.SendKeys.SendWait(myEntity);
+
         }
         /// <summary>
         /// PutClipboardInEntity returns a string that contains the text in the clipboard.
         /// </summary>
         /// <returns>string that contains the text in the clipboard</returns>
-       
+
         public string PutClipboardInEntity() {
             if (fbDebugMode) {
                 Console.WriteLine(oProcess.ProcessName + "==> " + "PutClipboardInEntity: ");
-               
+
             }
             int intTryAgainCtr = 0;
             TryAgain:
@@ -625,7 +625,7 @@ namespace IdealAutomate.Core {
             }
 
             Console.Write("myEntity=" + myEntity);
-            
+
 
             return myEntity;
         }
@@ -636,7 +636,7 @@ namespace IdealAutomate.Core {
         public void Sleep(int intSleep) {
             if (fbDebugMode) {
                 Console.WriteLine(oProcess.ProcessName + "==> " + "Sleep:  intSleep=" + intSleep.ToString());
-               
+
             }
             System.Threading.Thread.Sleep(intSleep);
         }
@@ -743,7 +743,581 @@ namespace IdealAutomate.Core {
                 goto ExamineALine;
             }
         }
+        /// <summary>
+        /// <para>GetAppDirectoryForScript gets the application </para>
+        /// <para>data folder and adds \IdealAutomate\yourscriptname to it.</para>
+        /// <para>The AppDirectory allows you to store personal settings and</para>
+        /// <para>information that you want to keep private (like passwords) in a location</para>
+        /// <para>outside of your script on in the application directory</para>
+        /// </summary>
+        /// <returns>string that is the app_data/roaming directory path for the script</returns>
+        public string GetAppDirectoryForScript() {
+
+            string directory = AppDomain.CurrentDomain.BaseDirectory;
+            directory = directory.Replace("\\bin\\Debug\\", "");
+            int intLastSlashIndex = directory.LastIndexOf("\\");
+            //string strScriptName = directory.Substring(intLastSlashIndex + 1);
+            // string strScriptName = System.Reflection.Assembly.GetCallingAssembly().GetName().Name;
+            string settingsDirectory =
+      Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\IdealAutomate\\" + ConvertFullFileNameToScriptPath(directory);
+            if (!Directory.Exists(settingsDirectory)) {
+                Directory.CreateDirectory(settingsDirectory);
+            }
+            return settingsDirectory;
+        }
+
+        /// <summary>
+        /// <para>GetAppDirectoryForIdealAutomate gets the application </para>
+        /// <para>data folder and adds \IdealAutomate\yourscriptname to it.</para>
+        /// <para>The AppDirectory allows you to store personal settings and</para>
+        /// <para>information that you want to keep private (like passwords) in a location</para>
+        /// <para>outside of your script on in the application directory</para>
+        /// </summary>
+        /// <returns>string that is the app_data/roaming directory path for the script</returns>
+        public string GetAppDirectoryForIdealAutomate() {
+            string directory = AppDomain.CurrentDomain.BaseDirectory;
+            directory = directory.Replace("\\bin\\Debug\\", "");
+            int intLastSlashIndex = directory.LastIndexOf("\\");
+            string strScriptName = directory.Substring(intLastSlashIndex + 1);
+            // string strScriptName = System.Reflection.Assembly.GetCallingAssembly().GetName().Name;
+            string settingsDirectory =
+      Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\IdealAutomate";
+            if (!Directory.Exists(settingsDirectory)) {
+                Directory.CreateDirectory(settingsDirectory);
+            }
+            return settingsDirectory;
+        }
+
+
+        /// <summary>
+        /// <para>ReadValueFromAppDataKey takes a key and adds .txt to it in order to create</para>
+        /// <para>a file name. It gets the app data path and adds \IdealAutomate\yourscriptname</para>
+        /// <para>to it. By combining that path to the file name created from the key,</para>
+        /// <para>it can retrieve a value from the key that is unique to your script application.</para>
+        ///  <para>The AppDirectory allows you to store personal settings and</para>
+        /// <para>information that you want to keep private (like passwords) in a location</para>
+        /// <para>outside of your script on in the application directory</para>
+        /// </summary>
+        /// <param name="strKey">Unique key within the script application</param>
+        /// <returns>string that was in application directory for that key</returns>
+        public string GetValueByKey(string strKey) {
+            string fileName = strKey + ".txt";
+            StreamReader file = null;
+            string strValueRead = "";
+            string settingsDirectory = GetAppDirectoryForScript();
+            string settingsPath = Path.Combine(settingsDirectory, fileName);
+            if (File.Exists(settingsPath)) {
+                file = File.OpenText(settingsPath);
+                strValueRead = file.ReadToEnd();
+                file.Close();
+            }
+            return strValueRead;
+        }
+
+        public int GetValueByKeyAsInt(string strKey) {
+            string fileName = strKey + ".txt";
+            StreamReader file = null;
+            string strValueRead = "";
+            string settingsDirectory = GetAppDirectoryForScript();
+            string settingsPath = Path.Combine(settingsDirectory, fileName);
+            if (File.Exists(settingsPath)) {
+                file = File.OpenText(settingsPath);
+                strValueRead = file.ReadToEnd();
+                file.Close();
+            }
+            int intValue = 0;
+            Int32.TryParse(strValueRead, out intValue);
+            return intValue;
+        }
+
+        public int GetValueByKeyAsIntForNonCurrentScript(string strKey, string strScriptName) {
+            string fileName = strKey + ".txt";
+            StreamReader file = null;
+            string strValueRead = "";
+            string settingsDirectory = GetAppDirectoryForIdealAutomate();
+            settingsDirectory = Path.Combine(settingsDirectory, strScriptName);
+            string settingsPath = Path.Combine(settingsDirectory, fileName);
+            if (File.Exists(settingsPath)) {
+                file = File.OpenText(settingsPath);
+                strValueRead = file.ReadToEnd();
+                file.Close();
+            }
+            int intValue = 0;
+            Int32.TryParse(strValueRead, out intValue);
+            return intValue;
+        }
+
+        public int GetValueByPublicKeyAsIntForNonCurrentScript(string strKey, string strFullFolderPath) {
+            string fileName = strKey + ".txt";
+            StreamReader file = null;
+            string strValueRead = "";
+            string settingsDirectory = strFullFolderPath;
+            settingsDirectory = Path.Combine(settingsDirectory, "..IdealAutomate");
+            string settingsPath = Path.Combine(settingsDirectory, fileName);
+            if (File.Exists(settingsPath)) {
+                file = File.OpenText(settingsPath);
+                strValueRead = file.ReadToEnd();
+                file.Close();
+            }
+            int intValue = 0;
+            Int32.TryParse(strValueRead, out intValue);
+            return intValue;
+        }
+
+        public string GetValueByKeyForNonCurrentScript(string strKey, string strScriptName) {
+            string fileName = strKey + ".txt";
+            StreamReader file = null;
+            string strValueRead = "";
+            string settingsDirectory = GetAppDirectoryForIdealAutomate();
+            settingsDirectory = Path.Combine(settingsDirectory, strScriptName);
+            string settingsPath = Path.Combine(settingsDirectory, fileName);
+            if (File.Exists(settingsPath)) {
+                file = File.OpenText(settingsPath);
+                strValueRead = file.ReadToEnd();
+                file.Close();
+            }
+            return strValueRead;
+        }
+
+        public string GetValueByPublicKeyForNonCurrentScript(string strKey, string strFullFolderPath) {
+            string fileName = strKey + ".txt";
+            StreamReader file = null;
+            string strValueRead = "";
+            string settingsDirectory = strFullFolderPath;
+            settingsDirectory = Path.Combine(settingsDirectory, "..IdealAutomate");
+            string settingsPath = Path.Combine(settingsDirectory, fileName);
+            if (File.Exists(settingsPath)) {
+                file = File.OpenText(settingsPath);
+                strValueRead = file.ReadToEnd();
+                file.Close();
+            }
+            return strValueRead;
+        }
+
+        public double GetValueByKeyAsDouble(string strKey) {
+            string fileName = strKey + ".txt";
+            StreamReader file = null;
+            string strValueRead = "";
+            string settingsDirectory = GetAppDirectoryForScript();
+            string settingsPath = Path.Combine(settingsDirectory, fileName);
+            if (File.Exists(settingsPath)) {
+                file = File.OpenText(settingsPath);
+                strValueRead = file.ReadToEnd();
+                file.Close();
+            }
+            double intValue = 0;
+            double.TryParse(strValueRead, out intValue);
+            return intValue;
+        }
+        public DateTime GetValueByKeyAsDateTime(string strKey) {
+            string fileName = strKey + ".txt";
+            StreamReader file = null;
+            string strValueRead = "";
+            string settingsDirectory = GetAppDirectoryForScript();
+            string settingsPath = Path.Combine(settingsDirectory, fileName);
+            if (File.Exists(settingsPath)) {
+                file = File.OpenText(settingsPath);
+                strValueRead = file.ReadToEnd();
+                file.Close();
+            }
+            DateTime dtScriptStartDateTime = DateTime.MinValue;
+            bool boolDTSuccessful = DateTime.TryParse(strValueRead, out dtScriptStartDateTime);
+            return dtScriptStartDateTime;
+        }
+
+        public DateTime GetValueByKeyAsDateTimeForNonCurrentScript(string strKey, string strScriptName) {
+            string fileName = strKey + ".txt";
+            StreamReader file = null;
+            string strValueRead = "";
+            string settingsDirectory = GetAppDirectoryForIdealAutomate();
+            settingsDirectory = Path.Combine(settingsDirectory, strScriptName);
+            string settingsPath = Path.Combine(settingsDirectory, fileName);
+            if (File.Exists(settingsPath)) {
+                file = File.OpenText(settingsPath);
+                strValueRead = file.ReadToEnd();
+                file.Close();
+            }
+            DateTime dtScriptStartDateTime = DateTime.MinValue;
+            bool boolDTSuccessful = DateTime.TryParse(strValueRead, out dtScriptStartDateTime);
+            return dtScriptStartDateTime;
+        }
+
+        public DateTime GetValueByPublicKeyAsDateTimeForNonCurrentScript(string strKey, string strFullFolderPath) {
+            string fileName = strKey + ".txt";
+            StreamReader file = null;
+            string strValueRead = "";
+            string settingsDirectory = strFullFolderPath;
+            settingsDirectory = Path.Combine(settingsDirectory, "..IdealAutomate");
+            string settingsPath = Path.Combine(settingsDirectory, fileName);
+            if (File.Exists(settingsPath)) {
+                file = File.OpenText(settingsPath);
+                strValueRead = file.ReadToEnd();
+                file.Close();
+            }
+            DateTime dtScriptStartDateTime = DateTime.MinValue;
+            bool boolDTSuccessful = DateTime.TryParse(strValueRead, out dtScriptStartDateTime);
+            return dtScriptStartDateTime;
+        }
+
+        public int GetValueByKeyAsIntGlobal(string strKey) {
+            string fileName = strKey + ".txt";
+            StreamReader file = null;
+            string strValueRead = "";
+            string settingsDirectory = GetAppDirectoryForIdealAutomate();
+            string settingsPath = Path.Combine(settingsDirectory, fileName);
+            if (File.Exists(settingsPath)) {
+                file = File.OpenText(settingsPath);
+                strValueRead = file.ReadToEnd();
+                file.Close();
+            }
+            int intValue = 0;
+            Int32.TryParse(strValueRead, out intValue);
+            return intValue;
+        }
+
+        public int IncrementValueByKeyByValue(string strKey, int intIncrementValue) {
+            string fileName = strKey + ".txt";
+            StreamReader file = null;
+            string strValueRead = "";
+            string settingsDirectory = GetAppDirectoryForScript();
+            string settingsPath = Path.Combine(settingsDirectory, fileName);
+            if (File.Exists(settingsPath)) {
+                file = File.OpenText(settingsPath);
+                strValueRead = file.ReadToEnd();
+                file.Close();
+            }
+            int intValue = 0;
+            Int32.TryParse(strValueRead, out intValue);
+            int intResult = intValue + intIncrementValue;
+            SetValueByKey(strKey, intResult.ToString());
+            return intResult;
+        }
+
+        public int IncrementValueByKeyByValueGlobal(string strKey, int intIncrementValue) {
+            string fileName = strKey + ".txt";
+            StreamReader file = null;
+            string strValueRead = "";
+            string settingsDirectory = GetAppDirectoryForIdealAutomate();
+            string settingsPath = Path.Combine(settingsDirectory, fileName);
+            if (File.Exists(settingsPath)) {
+                file = File.OpenText(settingsPath);
+                strValueRead = file.ReadToEnd();
+                file.Close();
+            }
+            int intValue = 0;
+            Int32.TryParse(strValueRead, out intValue);
+            int intResult = intValue + intIncrementValue;
+            SetValueByKey(strKey, intResult.ToString());
+            return intResult;
+        }
+
+        /// <summary>
+        /// <para>SetValueByKey takes a key and adds .txt to it in order to create</para>
+        /// <para>a file name. It gets the app data path and adds \IdealAutomate\yourscriptname</para>
+        /// <para>to it. By combining that path to the file name,</para>
+        /// <para>it can write a value to the key that is unique to your script application.</para>
+        /// <para>The AppDirectory allows you to store personal settings and</para>
+        /// <para>information that you want to keep private (like passwords) in a location</para>
+        /// <para>outside of your script on in the application directory</para>
+        /// </summary>
+        /// <param name="strKey">Unique key within the script application</param>
+        /// <param name="strValueToWrite">Value to write to the Unique key 
+        /// within the script application</param>
+        public void SetValueByKey(string strKey, string strValueToWrite) {
+            string fileName = strKey + ".txt";
+            StreamWriter writer = null;
+            string settingsDirectory = GetAppDirectoryForScript();
+            string settingsPath = Path.Combine(settingsDirectory, fileName);
+            // Hook a write to the text file.
+            writer = new StreamWriter(settingsPath);
+            // Rewrite the entire value of s to the file
+            writer.Write(strValueToWrite);
+            writer.Close();
+        }
+
+        public void SetValueByKeyForNonCurrentScript(string strKey, string strValueToWrite, string strScriptName) {
+            string fileName = strKey + ".txt";
+            StreamWriter writer = null;
+            string settingsDirectory = GetAppDirectoryForIdealAutomate();
+            settingsDirectory = Path.Combine(settingsDirectory, strScriptName);
+            if (!Directory.Exists(settingsDirectory)) {
+                Directory.CreateDirectory(settingsDirectory);
+            }
+            string settingsPath = Path.Combine(settingsDirectory, fileName);
+            // Hook a write to the text file.
+            writer = new StreamWriter(settingsPath);
+            // Rewrite the entire value of s to the file
+            writer.Write(strValueToWrite);
+            writer.Close();
+        }
+
+        public void SetValueByPublicKeyForNonCurrentScript(string strKey, string strValueToWrite, string strFullFolderPath) {
+            string fileName = strKey + ".txt";
+            StreamWriter writer = null;
+            string settingsDirectory = strFullFolderPath;
+            settingsDirectory = Path.Combine(settingsDirectory, "..IdealAutomate");
+            if (!Directory.Exists(settingsDirectory)) {
+                Directory.CreateDirectory(settingsDirectory);
+            }
+            string settingsPath = Path.Combine(settingsDirectory, fileName);
+            // Hook a write to the text file.
+            writer = new StreamWriter(settingsPath);
+            // Rewrite the entire value of s to the file
+            writer.Write(strValueToWrite);
+            writer.Close();
+        }
+
+        /// <summary>
+        /// <para>GetValueByKeyGlobal takes a key and adds .txt to it in order to create</para>
+        /// <para>a file name. It gets the app data path and adds \IdealAutomate\yourscriptname</para>
+        /// <para>to it. By combining that path to the file name created from the key,</para>
+        /// <para>it can retrieve a value from the key that is unique to your script application.</para>
+        ///  <para>The AppDirectory allows you to store personal settings and</para>
+        /// <para>information that you want to keep private (like passwords) in a location</para>
+        /// <para>outside of your script on in the application directory</para>
+        /// </summary>
+        /// <param name="strKey">Unique key within the script application</param>
+        /// <returns>string that was in application directory for that key</returns>
+        public string GetValueByKeyGlobal(string strKey) {
+            string fileName = strKey + ".txt";
+            StreamReader file = null;
+            string strValueRead = "";
+            string settingsDirectory = GetAppDirectoryForIdealAutomate();
+            string settingsPath = Path.Combine(settingsDirectory, fileName);
+            if (File.Exists(settingsPath)) {
+                file = File.OpenText(settingsPath);
+                strValueRead = file.ReadToEnd();
+                file.Close();
+            }
+            return strValueRead;
+        }
+
+        /// <summary>
+        /// <para>SetValueByKeyGlobal takes a key and adds .txt to it in order to create</para>
+        /// <para>a file name. It gets the app data path and adds \IdealAutomate\yourscriptname</para>
+        /// <para>to it. By combining that path to the file name,</para>
+        /// <para>it can write a value to the key that is unique to your script application.</para>
+        /// <para>The AppDirectory allows you to store personal settings and</para>
+        /// <para>information that you want to keep private (like passwords) in a location</para>
+        /// <para>outside of your script on in the application directory</para>
+        /// </summary>
+        /// <param name="strKey">Unique key within the script application</param>
+        /// <param name="strValueToWrite">Value to write to the Unique key 
+        /// within the script application</param>
+        public void SetValueByKeyGlobal(string strKey, string strValueToWrite) {
+            string fileName = strKey + ".txt";
+            StreamWriter writer = null;
+            string settingsDirectory = GetAppDirectoryForIdealAutomate();
+            string settingsPath = Path.Combine(settingsDirectory, fileName);
+            // Hook a write to the text file.
+            writer = new StreamWriter(settingsPath);
+            // Rewrite the entire value of s to the file
+            writer.Write(strValueToWrite);
+            writer.Close();
+        }
+
+        /// <summary>
+        /// <para>ReadAppDirectoryKeyToArrayList takes a key and adds .txt to it in order to create</para>
+        /// <para>a file name. It gets the app data path and adds \IdealAutomate\yourscriptname</para>
+        /// <para>to it. By combining that path to the file name created from the key,</para>
+        /// <para>it can retrieve an arraylist that is unique to your script application.</para>
+        /// <para>The AppDirectory allows you to store personal settings and</para>
+        /// <para>information that you want to keep private (like passwords) in a location</para>
+        /// <para>outside of your script on in the application directory</para>
+        /// </summary>
+        /// <param name="strKey">Unique key within the script application</param>
+        /// <returns>ArrayList that was in application directory for that key</returns>
+        public ArrayList ReadAppDirectoryKeyToArrayList(string strKey) {
+            string fileName = strKey + ".txt";
+            ArrayList myArrayList = new ArrayList();
+            string settingsDirectory = GetAppDirectoryForScript();
+            string settingsPath = Path.Combine(settingsDirectory, fileName);
+            if (File.Exists(settingsPath)) {
+                try {
+                    StreamReader reader = File.OpenText(settingsPath);
+                    while (!reader.EndOfStream) {
+                        string myLine = reader.ReadLine();
+                        myArrayList.Add(myLine);
+                    }
+                    reader.Close();
+                } catch (Exception ex) {
+
+                    string message = "Error - Reading  " + fileName + " " + ex.Message + " " + ex.InnerException; // +"; EntityName is: " + myEntityForExecutable.EntityName;
+                    MessageBox.Show(message);
+                }
+            }
+            return myArrayList;
+        }
+
+        /// <summary>
+        /// <para>WriteArrayListToAppDirectoryKey takes a key and adds .txt to it in order to create</para>
+        /// <para>a file name. It gets the app data path and adds \IdealAutomate\yourscriptname</para>
+        /// <para>to it. By combining that path to the file name created from the key,</para>
+        /// <para>it can write an arraylist to the key filename is unique to your script application.</para>
+        /// <para>The AppDirectory allows you to store personal settings and</para>
+        /// <para>information that you want to keep private (like passwords) in a location</para>
+        /// <para>outside of your script on in the application directory</para>
+        /// </summary>
+        /// <param name="strKey">Unique key within the script application</param>
+        /// <param name="arrayListToWrite">ArrayList that is to written to the application directory for that key</param>
+        public void WriteArrayListToAppDirectoryKey(string strKey, ArrayList arrayListToWrite) {
+            string fileName = strKey + ".txt";
+            StreamWriter writer = null;
+            string settingsDirectory = GetAppDirectoryForScript();
+            string settingsPath = Path.Combine(settingsDirectory, fileName);
+            // Hook a write to the text file.
+            writer = new StreamWriter(settingsPath);
+            // Rewrite the entire value of s to the file
+            foreach (var item in arrayListToWrite) {
+                writer.WriteLine(item.ToString());
+            }
+            writer.Close();
+        }
+
+        /// <summary>
+        /// <para>ReadAppDirectoryKeyToArrayList takes a key and adds .txt to it in order to create</para>
+        /// <para>a file name. It gets the app data path and adds \IdealAutomate\yourscriptname</para>
+        /// <para>to it. By combining that path to the file name created from the key,</para>
+        /// <para>it can retrieve an arraylist that is unique to your script application.</para>
+        /// <para>The AppDirectory allows you to store personal settings and</para>
+        /// <para>information that you want to keep private (like passwords) in a location</para>
+        /// <para>outside of your script on in the application directory</para>
+        /// </summary>
+        /// <param name="strKey">Unique key within the script application</param>
+        /// <returns>ArrayList that was in application directory for that key</returns>
+        public ArrayList ReadAppDirectoryKeyToArrayListGlobal(string strKey) {
+            string fileName = strKey + ".txt";
+            ArrayList myArrayList = new ArrayList();
+            string settingsDirectory = GetAppDirectoryForIdealAutomate();
+            string settingsPath = Path.Combine(settingsDirectory, fileName);
+            if (File.Exists(settingsPath)) {
+                try {
+                    StreamReader reader = File.OpenText(settingsPath);
+                    while (!reader.EndOfStream) {
+                        string myLine = reader.ReadLine();
+                        myArrayList.Add(myLine);
+                    }
+                    reader.Close();
+                } catch (Exception ex) {
+
+                    string message = "Error - Reading  " + fileName + " " + ex.Message + " " + ex.InnerException; // +"; EntityName is: " + myEntityForExecutable.EntityName;
+                    MessageBox.Show(message);
+                }
+            }
+            return myArrayList;
+        }
+
+        /// <summary>
+        /// <para>WriteArrayListToAppDirectoryKey takes a key and adds .txt to it in order to create</para>
+        /// <para>a file name. It gets the app data path and adds \IdealAutomate\yourscriptname</para>
+        /// <para>to it. By combining that path to the file name created from the key,</para>
+        /// <para>it can write an arraylist to the key filename is unique to your script application.</para>
+        /// <para>The AppDirectory allows you to store personal settings and</para>
+        /// <para>information that you want to keep private (like passwords) in a location</para>
+        /// <para>outside of your script on in the application directory</para>
+        /// </summary>
+        /// <param name="strKey">Unique key within the script application</param>
+        /// <param name="arrayListToWrite">ArrayList that is to written to the application directory for that key</param>
+        public void WriteArrayListToAppDirectoryKeyGlobal(string strKey, ArrayList arrayListToWrite) {
+            string fileName = strKey + ".txt";
+            StreamWriter writer = null;
+            string settingsDirectory = GetAppDirectoryForIdealAutomate();
+            string settingsPath = Path.Combine(settingsDirectory, fileName);
+            // Hook a write to the text file.
+            writer = new StreamWriter(settingsPath);
+            // Rewrite the entire value of s to the file
+            foreach (var item in arrayListToWrite) {
+                writer.WriteLine(item.ToString());
+            }
+            writer.Close();
+        }
+        /// <summary>
+        /// At beginning of template, Write StartTime, StartDate, Add 1 to total executions. 
+        /// 
+        /// </summary>
+        public void ScriptStartedUpdateStats() {
+            SetValueByKey("ScriptStartDateTime", System.DateTime.Now.ToString());
+            IncrementValueByKeyByValue("ScriptTotalExecutions", 1);
+
+        }
+
+        /// <summary>
+        /// ScriptEndedSuccessfullyUpdateStats - At end of template, Subtract start time and start date
+        /// from Current date and time, add 1 to successful executions. 
+        /// (avg successful execution time * 
+        /// (total successful executions - 1)) + current successful execution time) / total successful executions. 
+        /// Write PercentSuccessful = (SuccessfulExecutions / TotalExecutions) * 100. 
+        /// CurrentSavedExecutionTime = CurrentExecutionTime - ManualExecutionTime.
+        /// ScriptTotalSavedExecutionTime += CurrentSavedExecutionTime
+        ///  StartDate is the LastExecutedDate.
+        /// </summary>
+        public void ScriptEndedSuccessfullyUpdateStats() {
+            DateTime dtScriptStartDateTime = GetValueByKeyAsDateTime("ScriptStartDateTime");
+
+
+            if (dtScriptStartDateTime == DateTime.MinValue) {
+                return;
+            }
+
+            TimeSpan ts = System.DateTime.Now - dtScriptStartDateTime;
+
+            int intAvgSuccessfulExecutionTime = GetValueByKeyAsInt("AvgSuccessfulExecutionTime");
+            int intScriptSuccessfulExecutions = GetValueByKeyAsInt("ScriptSuccessfulExecutions");
+            int intTotalSuccessfulExecutionTimePrev = intAvgSuccessfulExecutionTime *
+                (intScriptSuccessfulExecutions);
+            int intTotalSuccessfulExecutionTime = intTotalSuccessfulExecutionTimePrev + (int)ts.TotalSeconds;
+            intScriptSuccessfulExecutions = IncrementValueByKeyByValue("ScriptSuccessfulExecutions", 1);
+            intAvgSuccessfulExecutionTime = intTotalSuccessfulExecutionTime / intScriptSuccessfulExecutions;
+            SetValueByKey("AvgSuccessfulExecutionTime", intAvgSuccessfulExecutionTime.ToString());
+            int intScriptTotalExecutions = GetValueByKeyAsInt("ScriptTotalExecutions");
+            decimal decPercentSuccessful = (intScriptSuccessfulExecutions / intScriptTotalExecutions) * 100;
+            int intPercentSuccessful = (int)Math.Round(decPercentSuccessful);
+            SetValueByKey("ScriptPercentSuccessful", intPercentSuccessful.ToString());
+            int intManualExecutionTime = GetValueByKeyAsInt("ManualExecutionTime");
+            int intScriptCurrentExecutionTimeSavings = 0;
+            if (intManualExecutionTime != 0) {
+                intScriptCurrentExecutionTimeSavings = intManualExecutionTime - intTotalSuccessfulExecutionTime;
+            }
+
+            IncrementValueByKeyByValue("ScriptTotalSavedExecutionTime", intScriptCurrentExecutionTimeSavings);
+
+
+
+
+        }
+        public string ConvertFullFileNameToScriptPath(string fullFileName) {
+            int intIndex = fullFileName.LastIndexOf(@"\");
+            if (intIndex > -1) {
+                fullFileName = fullFileName.Substring(0, intIndex);
+            }
+            string scriptPath = fullFileName;
+            scriptPath = scriptPath.Replace(":", "+").Replace(@"\", "-");
+            return scriptPath;
+        }
+
+        public string ConvertFullFileNameToPublicPath(string fullFileName) {
+            int intIndex = fullFileName.LastIndexOf(@"\");
+            if (intIndex > -1) {
+                fullFileName = fullFileName.Substring(0, intIndex);
+            }
+            string scriptPath = fullFileName;
+            return scriptPath;
+        }
+
+        public string ConvertFullFileNameToScriptPathWithoutRemoveLastLevel(string fullFileName) {
+            string scriptPath = fullFileName;
+            scriptPath = scriptPath.Replace(":", "+").Replace(@"\", "-");
+            return scriptPath;
+        }
+
+        public string GetPathForScriptNoBinDebug() {
+            string directory = AppDomain.CurrentDomain.BaseDirectory;
+            directory = directory.Replace("\\bin\\Debug\\", "");
+            return directory;
+
+        }
 
     }
 
+   
 }
