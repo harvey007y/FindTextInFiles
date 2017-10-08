@@ -529,13 +529,14 @@ namespace FindTextInFiles {
                 string strExecutable = @"C:\Program Files (x86)\Notepad++\notepad++.exe";
                 string strContent = settingsDirectory + @"\MatchInfo.txt";
                 Process.Start(strExecutable, string.Concat("", strContent, ""));
-
+                myActions.ScriptEndedSuccessfullyUpdateStats();
                 myActions.MessageBoxShow("RunTime: " + elapsedTime + "\n\r\n\rHits: " + intHits.ToString() + "\n\r\n\rFiles with hits: " + intUniqueFiles.ToString() + "\n\r\n\rPut Cursor on line and\n\r press Ctrl+Alt+N\n\rto view detail page. ");
             }
 
 
             if (strButtonPressed == "btnOkay") {
                 strButtonPressed = myActions.WindowMultipleControlsMinimized(ref myListControlEntity, 300, 1200, 100, 100);
+                myActions.ScriptStartedUpdateStats();
                 goto LineAfterDisplayWindow;
             }
 
