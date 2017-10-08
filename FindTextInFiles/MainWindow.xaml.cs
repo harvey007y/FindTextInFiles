@@ -542,7 +542,9 @@ namespace FindTextInFiles {
 
 
             myExit:
-            myActions.ScriptEndedSuccessfullyUpdateStats();
+            int myExecCount = myActions.GetValueByKeyAsInt("ScriptTotalExecutions");
+            myExecCount--;
+            myActions.SetValueByKey("ScriptTotalExecutions", myExecCount.ToString());
             Application.Current.Shutdown();
         }
         public string GetAppDirectoryForScript(string strScriptName) {
